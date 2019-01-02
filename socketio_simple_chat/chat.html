@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>simple chatting (socket.io)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script> <!-- 1 -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  </head>
+  <body>
+    <div>
+      <textarea id="chat-area" rows="20" style='width:100%' readonly></textarea>
+    </div>
+
+    <div>
+      <input type="text" id="chat-name">
+      <input type="text" id="chat-message">
+      <input type="button" id="chat-send" value="send"/>
+    </div>
+
+    <script>
+      var socket = io();
+
+      // send 버튼 클릭 시, event 발생
+      $('#chat-send').on('click', function(e){
+
+        var chatName = $('#chat-name').val();
+        var chatMessage =  $('#chat-message').val();
+
+        // send_text event 를 서버 쪽으로 전송
+        socket.emit('send_text', chatName, chatMessage);
+
+        // 메시지 비워주고, 포커스 맞추기
+        $('#chat-message').val('');
+        $('#chat-message').focus();
+        e.preventDefault();
+
+      });
+
+      // 서버 쪽에서 전달받은 메시지를 textarea 에 뿌리기
+      socket.on('receive_text', function(message){
+        $('#chat-area').append(message+'\r\n');
+      });
+
+      // 유저 네임 변경
+      socket.on('change_name', function(name){
+        $('#chat-name').val(name);
+      });
+
+    </script>
+  </body>
+</html>
